@@ -1,6 +1,6 @@
 (defproject org.clojure-android/droid-test "0.1.0"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+  :description "Robolectric wrapper for testing Clojure-Android projects"
+  :url "http://github.com/clojure-android/droid-test"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.6.0"]
