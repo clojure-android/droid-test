@@ -1,4 +1,4 @@
-(defproject org.clojure-android/droid-test "0.1.0"
+(defproject org.clojure-android/droid-test "0.1.1-SNAPSHOT"
   :description "Robolectric wrapper for testing Clojure-Android projects"
   :url "http://github.com/clojure-android/droid-test"
   :license {:name "Eclipse Public License"
