@@ -13,9 +13,10 @@ import java.lang.reflect.*;
 public class TestRunner extends RobolectricTestRunner {
 
     static String[] notAcquiredPackages;
-    static String[] namespacesToTest;
+    static ArrayList<String> namespacesToTest;
+    static ArrayList<String> sourceNamespaces;
 
-    public synchronized static String[] getTestNamespaces() {
+    public synchronized static ArrayList<String> getTestNamespaces() {
         ClassLoader myClassLoader = TestRunner.class.getClassLoader();
         if (namespacesToTest == null) {
             if (! myClassLoader.toString().startsWith("sun.")) {
@@ -24,9 +25,7 @@ public class TestRunner extends RobolectricTestRunner {
                     Class otherClassInstance = parentClassLoader.loadClass(TestRunner.class.getName());
                     Method getInstanceMethod = otherClassInstance.getDeclaredMethod("getTestNamespaces", new Class[] { });
                     Object otherAbsoluteSingleton = getInstanceMethod.invoke(null, new Object[] { } );
-                    namespacesToTest = (String[]) otherAbsoluteSingleton;// Proxy.newProxyInstance(myClassLoader,
-                    // new Class[] { },
-                    // new PassThroughProxyHandler(otherAbsoluteSingleton));
+                    namespacesToTest = (ArrayList<String>) otherAbsoluteSingleton;// Proxy.newProxyInstance(myClassLoader,
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -35,6 +34,26 @@ public class TestRunner extends RobolectricTestRunner {
             }
         }
         return namespacesToTest;
+    }
+
+    public synchronized static ArrayList<String> getSourceNamespaces() {
+        ClassLoader myClassLoader = TestRunner.class.getClassLoader();
+        if (sourceNamespaces == null) {
+            if (! myClassLoader.toString().startsWith("sun.")) {
+                try {
+                    ClassLoader parentClassLoader = TestRunner.class.getClassLoader().getParent();
+                    Class otherClassInstance = parentClassLoader.loadClass(TestRunner.class.getName());
+                    Method getInstanceMethod = otherClassInstance.getDeclaredMethod("getSourceNamespaces", new Class[] { });
+                    Object otherAbsoluteSingleton = getInstanceMethod.invoke(null, new Object[] { } );
+                    sourceNamespaces = (ArrayList<String>) otherAbsoluteSingleton;// Proxy.newProxyInstance(myClassLoader,
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                throw new RuntimeException("What the hell?");
+            }
+        }
+        return sourceNamespaces;
     }
 
     public TestRunner(final Class<?> testClass) throws InitializationError {
@@ -68,23 +87,50 @@ public class TestRunner extends RobolectricTestRunner {
         CommandLineParser parser = new DefaultParser();
         try {
             CommandLine line = parser.parse(options, args);
-            namespacesToTest = line.getArgs();
-            if (namespacesToTest == null) {
+            String[] freeArgs = line.getArgs();
+            ArrayList<String> sources = new ArrayList<String>();
+            ArrayList<String> tests = new ArrayList<String>();
+            int i = 0;
+            if (":src".equals(freeArgs[i])) {
+                i++;
+                while (i < freeArgs.length) {
+                    String ns = freeArgs[i];
+                    if (":test".equals(ns))
+                        break;
+                    sources.add(ns);
+                    i++;
+                }
+            }
+            if (":test".equals(freeArgs[i])) {
+                i++;
+                while (i < freeArgs.length) {
+                    tests.add(freeArgs[i]);
+                    i++;
+                }
+            }
+
+            namespacesToTest = tests;
+            if (namespacesToTest == null || namespacesToTest.size() == 0) {
                 System.err.println("No test namespaces were provided.");
                 System.exit(-1);
             }
+
+            sourceNamespaces = sources;
+
             String ignore = line.getOptionValue("ignore");
             if (ignore != null) {
                 notAcquiredPackages = ignore.split(";");
             }
 
-            String mode = line.getOptionValue("mode");;
+            String mode = line.getOptionValue("mode");
             if (mode == null) {
                 mode = "clojuretest";
             }
 
             if ("clojuretest".equals(mode)) {
                 JUnitCore.runClasses(new Class[]{ ClojureTestWrapper.class });
+            } else if ("cloverage".equals(mode)) {
+                JUnitCore.runClasses(new Class[]{ CloverageWrapper.class });
             } else if ("speclj".equals(mode)){
                 JUnitCore.runClasses(new Class[]{ SpecljWrapper.class });
             } else if ("expectations".equals(mode)){
