@@ -1,0 +1,33 @@
+* droid-test
+
+  Droid-test is a small utility library that facilitates testing in
+  [[http://clojure-android.info][Clojure-Android]] projects. It uses [[http://robolectric.org/][Robolectric]] to locally run tests that
+  interoperate with Android classes.
+
+  Droid-test currently provides support for the following Clojure testing
+  libraries:
+
+  - [[https://clojure.github.io/clojure/clojure.test-api.html][clojure.test]]
+  - [[http://jayfields.com/expectations/][expectations]]
+  - [[http://speclj.com/][Speclj]]
+
+** Usage
+
+   The simplest was to use droid-test is from lein-droid. The tutorial is coming
+   soon.
+
+   It is also possible to use droid-test manually. You have to issue the
+   following shell command:
+
+   : java coa.droid_test.internal.TestRunner -mode <mode> <list-of-test-namespaces>
+
+   `<mode>` should be either `clojuretest`, `expectations` or `speclj`. If
+   `-mode` option is not provided, `clojuretest` is assumed. List of test
+   namespaces should be separated by space. It goes without saying that Clojure,
+   Robolectric, JUnit, droid-test, and test namespaces themselves should be on
+   the classpath for this command to work.
+
+** License
+
+   Copyright © 2015 Alexander Yakushev. Distributed under the Eclipse Public
+   License, the same as Clojure. See the file [[https://github.com/clojure-android/droid-test/blob/master/LICENSE][LICENSE]].
