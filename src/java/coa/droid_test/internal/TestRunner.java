@@ -30,7 +30,7 @@ public class TestRunner extends RobolectricTestRunner {
                     e.printStackTrace();
                 }
             } else {
-                throw new RuntimeException("What the hell?");
+                throw new RuntimeException("Shouldn't be called with default Sun classloader");
             }
         }
         return namespacesToTest;
@@ -50,7 +50,7 @@ public class TestRunner extends RobolectricTestRunner {
                     e.printStackTrace();
                 }
             } else {
-                throw new RuntimeException("What the hell?");
+                throw new RuntimeException("Shouldn't be called with default Sun classloader");
             }
         }
         return sourceNamespaces;
@@ -78,18 +78,12 @@ public class TestRunner extends RobolectricTestRunner {
         return builder.build();
     }
 
-    public static void main (String[] args) {
-        Option notAcquirePkgs = OptionBuilder.hasArg().create("ignore");
-        Option modeOption = OptionBuilder.hasArg().create("mode");
-        Options options = new Options();
-        options.addOption(notAcquirePkgs);
-        options.addOption(modeOption);
-        CommandLineParser parser = new DefaultParser();
-        try {
-            CommandLine line = parser.parse(options, args);
-            String[] freeArgs = line.getArgs();
-            ArrayList<String> sources = new ArrayList<String>();
-            ArrayList<String> tests = new ArrayList<String>();
+    public static void parseNamespaces(String[] freeArgs) {
+        if (freeArgs.length == 0)
+            return;
+        ArrayList<String> sources = new ArrayList<String>();
+        ArrayList<String> tests = new ArrayList<String>();
+        if (freeArgs.length > 0) {
             int i = 0;
             if (":src".equals(freeArgs[i])) {
                 i++;
@@ -108,24 +102,40 @@ public class TestRunner extends RobolectricTestRunner {
                     i++;
                 }
             }
+        }
 
-            namespacesToTest = tests;
-            if (namespacesToTest == null || namespacesToTest.size() == 0) {
-                System.err.println("No test namespaces were provided.");
-                System.exit(-1);
-            }
+        namespacesToTest = tests;
+        if (namespacesToTest == null || namespacesToTest.size() == 0) {
+            System.err.println("No test namespaces were provided.");
+            System.exit(-1);
+        }
 
-            sourceNamespaces = sources;
+        sourceNamespaces = sources;
+    }
+
+    public static void main (String[] args) {
+        Option notAcquirePkgs = OptionBuilder.hasArg().create("ignore");
+        Option modeOption = OptionBuilder.hasArg().create("mode");
+        Options options = new Options();
+        options.addOption(notAcquirePkgs);
+        options.addOption(modeOption);
+        CommandLineParser parser = new DefaultParser();
+        String mode = null;
+        try {
+            CommandLine line = parser.parse(options, args);
 
             String ignore = line.getOptionValue("ignore");
             if (ignore != null) {
                 notAcquiredPackages = ignore.split(";");
             }
 
-            String mode = line.getOptionValue("mode");
+            mode = line.getOptionValue("mode");
             if (mode == null) {
                 mode = "clojuretest";
             }
+
+            // if (!mode.equals("repl"))
+            parseNamespaces(line.getArgs());
 
             if ("clojuretest".equals(mode)) {
                 JUnitCore.runClasses(new Class[]{ ClojureTestWrapper.class });
@@ -143,11 +153,12 @@ public class TestRunner extends RobolectricTestRunner {
         } catch (ParseException e) {
             System.err.println("Malformed command line: " + e.getMessage());
         } catch (Throwable e) {
-            System.err.println("Something went wrong: " + e.getMessage());
+            e.printStackTrace();
         }
         finally {
             // Forcequit to avoid hanging on threads
-            System.exit(0);
+            if (mode == null || !("repl".equals(mode)))
+                System.exit(0);
         }
 
     }
