@@ -8,7 +8,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RuntimeEnvironment;
 import java.util.List;
-import java.util.Arrays;
 
 @RunWith(TestRunner.class)
 public class CloverageWrapper {
@@ -16,27 +15,16 @@ public class CloverageWrapper {
     @Test
     public void cloverageRunner() {
         try {
-            ClassLoader loader = Thread.currentThread().getContextClassLoader();
-            IFn require = Clojure.var("clojure.core", "require");
+            List<Symbol> namespaces = Util.importNsDeclarations(TestRunner.getTestNamespaces());
+            ArrayList<String> cloverageArgs = new ArrayList<String>();
 
-            require.invoke(Clojure.read("coa.droid-test.internal.util"));
-            IFn getImports = Clojure.var("coa.droid-test.internal.util",
-                                         "extract-imports");
-
-            ArrayList<String> namespaces = new ArrayList<String>();
-            for (String ns : TestRunner.getTestNamespaces()) {
-                Symbol nsSym = Symbol.intern(null, ns);
-                List<String> imports = (List<String>)getImports.invoke(loader, ns);
-                for (String classname : imports) {
-                    Class.forName(classname, true, loader);
-                }
-                require.invoke(nsSym);
-                namespaces.add("-x");
-                namespaces.add(ns);
+            for (Symbol ns : namespaces) {
+                cloverageArgs.add("-x");
+                cloverageArgs.add(ns.getName());
             }
+            cloverageArgs.addAll(TestRunner.getSourceNamespaces());
 
-            List<String> sourceNamespaces = TestRunner.getSourceNamespaces();
-
+            IFn require = Clojure.var("clojure.core", "require");
             require.invoke(Clojure.read("cloverage.coverage"));
 
             IFn coverage = Clojure.var("cloverage.coverage", "-main");
