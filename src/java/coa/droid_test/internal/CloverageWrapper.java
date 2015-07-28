@@ -30,7 +30,7 @@ public class CloverageWrapper {
             IFn coverage = Clojure.var("cloverage.coverage", "-main");
             IFn apply = Clojure.var("clojure.core", "apply");
             IFn concat = Clojure.var("clojure.core", "concat");
-            apply.invoke(coverage, "--coveralls", concat.invoke(namespaces, sourceNamespaces));
+            apply.invoke(coverage, "--coveralls", cloverageArgs);
 
             IFn shutdownAgents = Clojure.var("clojure.core", "shutdown-agents");
             shutdownAgents.invoke();
