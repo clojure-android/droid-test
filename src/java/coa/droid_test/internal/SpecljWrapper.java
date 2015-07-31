@@ -15,6 +15,7 @@ public class SpecljWrapper {
     public void specljRunner() {
         try {
             List<Symbol> namespaces = Util.importNsDeclarations(TestRunner.getTestNamespaces());
+            Util.tryInitNeko();
 
             IFn require = Clojure.var("clojure.core", "require");
 

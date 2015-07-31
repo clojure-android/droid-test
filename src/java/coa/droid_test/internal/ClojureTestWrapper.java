@@ -15,6 +15,7 @@ public class ClojureTestWrapper {
     public void clojureTestsRunner() {
         try {
             List<Symbol> namespaces = Util.importNsDeclarations(TestRunner.getTestNamespaces());
+            Util.tryInitNeko();
 
             IFn require = Clojure.var("clojure.core", "require");
             require.invoke(Clojure.read("clojure.test"));

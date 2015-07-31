@@ -13,6 +13,7 @@ public class ReplWrapper {
     public void nreplStarter() {
         try {
             Util.importNsDeclarations(TestRunner.getTestNamespaces());
+            Util.tryInitNeko();
 
             IFn require = Clojure.var("clojure.core", "require");
             require.invoke(Clojure.read("clojure.tools.nrepl.server"));

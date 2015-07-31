@@ -20,6 +20,7 @@ public class ExpectationsWrapper {
             disableRun.invoke();
 
             List<Symbol> namespaces = Util.importNsDeclarations(TestRunner.getTestNamespaces());
+            Util.tryInitNeko();
 
             IFn runTests = Clojure.var("expectations", "run-all-tests");
             Object result = runTests.invoke();

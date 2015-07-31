@@ -5,6 +5,8 @@ import clojure.lang.Symbol;
 import clojure.java.api.Clojure;
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.reflect.Field;
+import org.robolectric.RuntimeEnvironment;
 
 public class Util {
 
@@ -38,5 +40,17 @@ public class Util {
             processNs(ns, loader, namespaceSymbols);
         }
         return namespaceSymbols;
+    }
+
+    public static void tryInitNeko() {
+        try {
+            Class c = Class.forName("neko.App");
+            Field instance = c.getField("instance");
+            instance.set(null, RuntimeEnvironment.application);
+        } catch (ClassNotFoundException e) {
+            System.out.println("[WARN] Neko not found");
+        } catch (Exception e) {
+            System.out.println("[WARN] neko.App/instance field not found");
+        }
     }
 }

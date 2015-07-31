@@ -16,6 +16,7 @@ public class CloverageWrapper {
     public void cloverageRunner() {
         try {
             List<Symbol> namespaces = Util.importNsDeclarations(TestRunner.getTestNamespaces());
+            Util.tryInitNeko();
             ArrayList<String> cloverageArgs = new ArrayList<String>();
 
             for (Symbol ns : namespaces) {
