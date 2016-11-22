@@ -19,13 +19,19 @@
    It is also possible to use droid-test manually. You have to issue the
    following shell command:
 
-   : java coa.droid_test.internal.TestRunner -mode <mode> <list-of-test-namespaces>
+   : java coa.droid_test.internal.TestRunner -mode <mode> :test <list-of-test-namespaces>
 
    `<mode>` should be either `clojuretest`, `expectations` or `speclj`. If
    `-mode` option is not provided, `clojuretest` is assumed. List of test
    namespaces should be separated by space. It goes without saying that Clojure,
    Robolectric, JUnit, droid-test, and test namespaces themselves should be on
    the classpath for this command to work.
+
+   Tip: Examining the output of the following command with a checkout of 
+   [[https://github.com/clojure-android/neko][clojure-android/neko]] may give an example of 
+   a fully spelled out invocation:
+   
+   : DEBUG=1 lein with-profile local-repl droid local-test
 
 ** License
 
